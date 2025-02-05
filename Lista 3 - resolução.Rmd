@@ -71,7 +71,11 @@ screenreg(reg_proficmat_fe, digits = 4, custom.model.names = c("proficiência ma
 1.e. Um coeficiente $\hat{\beta}_0=10$ indica que a proficiência média de uma escola não tratada em 2005 é de 10 pontos. O erro-padrão de 3 (não muito grande em relação ao coeficiente) sugere que essa estimativa é estatisticamente confiável.
 
 
+#2.
 
+```{r chk5, echo=TRUE, message=TRUE, warning=TRUE, paged.print=TRUE}
+gileade <- read_dta("~/mestrado/infcausal/Lista_3/LATECovid19simulation.dta")
+```
 
 
 
