@@ -1,5 +1,6 @@
 ---
-title: "Lista 3 - resolução"
+title: "Lista 3 resolução"
+author: Henrique de Souza Passos
 output: html_document
 date: "2025-02-05"
 ---
@@ -8,22 +9,76 @@ date: "2025-02-05"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+# Limpeza do Ambiente
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r chk0, echo=TRUE, message=TRUE, warning=TRUE, paged.print=TRUE}
+rm(list = ls())
 ```
 
-## Including Plots
+# Carregamento de Pacotes
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r chk1, echo=TRUE, message=TRUE, warning=TRUE, paged.print=TRUE}
+library(haven)
+library(texreg)
+library(plm)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+# 1. Programa de distribuićão de material
+
+```{r chk2, echo=TRUE, message=TRUE, warning=TRUE, paged.print=TRUE}
+banco <- read_dta("~/mestrado/infcausal/Lista_3/banco_diff_diff.dta")
+```
+
+1.a. O impacto do programa foi positivo mas não muito alto, o coeficiente da variável $grupo_tratado·d.2007$ foi de 8.2 na proficiência em português e de 8.1 na proficiência e matemática, o que sugere um aumento baixo dado que a proficiência média das escolas não tratadas em 2006 (dada pelo intercepto) é de 182.53 para português e 187.8 para matemática. Além disso o $R²$ de amas regressões também é baixo (0.01 e 0.09) mostrando que os modelos têm baixa capacidade explicativa.
+
+```{r chk3, echo=TRUE, message=TRUE, warning=TRUE, paged.print=TRUE}
+banco$grupo_tratado_2007 <- banco$grupo_tratado * banco$ano_2007
+
+eq_profic_port <- profic_port ~ grupo_tratado_2007 + grupo_tratado + ano_2007 
+eq_profic_mat <- profic_mat ~ grupo_tratado_2007 + grupo_tratado + ano_2007 
+
+reg_proficport <- lm(eq_profic_port, data = banco)
+reg_proficmat <- lm(eq_profic_mat, data = banco)
+
+
+summary((reg_proficport))
+screenreg(reg_proficport, digits = 4, custom.model.names = c("proficiência português"))
+
+summary((reg_proficmat))
+screenreg(reg_proficmat, digits = 4, custom.model.names = c("proficiência matemática"))
+```
+
+1.c. Estimar esse modelo por efeitos fixos pode reuzir o viés causado por diferenças estruturais entre escolas. Como as escolas podem ter características fixas que influenciam a proficiência, como qualidade dos professores ou infraestrutura, o efeito fixo controla essas diferenças, focando apenas no impacto das variáveis explicativas ao longo do tempo dentro da mesma escola. Os resultados foram parecidos com o modelo OLS mostrando um resultado positivo do programa, o coeficiente do tratamento foi de 10.11 para a proficiência em português e de 12.47 para matemática.
+
+```{r chk4, echo=TRUE, message=TRUE, warning=TRUE, paged.print=TRUE}
+eq_profic_port_fe <- profic_port ~ tratamento + ano_2007 
+eq_profic_mat_fe <- profic_mat ~ tratamento + ano_2007 
+
+reg_proficport_fe <- plm(eq_profic_port_fe, data = banco, type = "within")
+reg_proficmat_fe <- lm(eq_profic_mat_fe, data = banco, type = "within")
+
+
+summary((reg_proficport_fe))
+screenreg(reg_proficport_fe, digits = 4, custom.model.names = c("proficiência português"))
+
+summary((reg_proficmat_fe))
+screenreg(reg_proficmat_fe, digits = 4, custom.model.names = c("proficiência matemática"))
+```
+
+1.d. O modelo de primeiras diferenças mede as variações temporais, portanto ele não faz um controle para características fixas das escolas como no modelo de efeitos fixos. Então, estimar pelas diferenças pode ser menos eficiente se houver características não observáveis que afetam simultaneamente as variáveis ao longo do tempo, por isso o modelo de efeitos fixos seria mais recomendado nesse caso.
+
+
+1.e. Um coeficiente $\hat{\beta}_0=10$ indica que a proficiência média de uma escola não tratada em 2005 é de 10 pontos. O erro-padrão de 3 (não muito grande em relação ao coeficiente) sugere que essa estimativa é estatisticamente confiável.
+
+
+
+
+
+
+
+
+
+
+
+
+
