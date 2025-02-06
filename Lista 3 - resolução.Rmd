@@ -18,9 +18,11 @@ rm(list = ls())
 # Carregamento de Pacotes
 
 ```{r chk1, echo=TRUE, message=TRUE, warning=TRUE, paged.print=TRUE}
+library(knitr)
 library(haven)
 library(texreg)
 library(plm)
+library (AER)
 ```
 
 # 1. Programa de distribuićão de material
@@ -77,7 +79,20 @@ screenreg(reg_proficmat_fe, digits = 4, custom.model.names = c("proficiência ma
 gileade <- read_dta("~/mestrado/infcausal/Lista_3/LATECovid19simulation.dta")
 ```
 
+2.a.
 
+```{r chk6, echo=TRUE, message=TRUE, warning=TRUE, paged.print=TRUE}
+source("~/mestrado/infcausal/Aulas 2024/sources/tabulate.R")
+tabulate(gileade,col=c("campaign","lockdown"),col.percentage = TRUE)
+```
+
+2.b.
+
+```{r chk7, echo=TRUE, message=TRUE, warning=TRUE, paged.print=TRUE}
+modelo_2sls <- ivreg(covid_fatality_pm ~ social_distancing | campaign + lockdown , data = gileade)
+
+summary(modelo_2sls)
+```
 
 
 
