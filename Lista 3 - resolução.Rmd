@@ -25,7 +25,7 @@ library(plm)
 library (AER)
 ```
 
-# 1. Programa de distribuićão de material
+# 1. Programa de distribuição de material
 
 ```{r chk2, echo=TRUE, message=TRUE, warning=TRUE, paged.print=TRUE}
 banco <- read_dta("~/mestrado/infcausal/Lista_3/banco_diff_diff.dta")
@@ -86,13 +86,50 @@ source("~/mestrado/infcausal/Aulas 2024/sources/tabulate.R")
 tabulate(gileade,col=c("campaign","lockdown"),col.percentage = TRUE)
 ```
 
-2.b.
+2.b. No primeiro estágio vemos pelo intercepto que municípios sem campanha de conscientização nem lockdown tinham, em média, um nível inicial de distanciamento social de 16%. Municípios onde a campanha foi implementada tiveram, em média, 18,5% a mais de distanciamento social e o lockdown aumentou o distanciamento social em 63.7%. O p-valor de ambas variáveis foi baixo mostrando que os sefeitos forma significativos. O $R^2$ ajustado de 0.9287 indica que os instrumentos são fortes e a estatística F de 36.225 não dá indício de instrumentos fracos.
+
+No segundo estágio, vemos que os municípios sem distanciamento social têm, em média, 2.121 mortes por milhão de habitantes e um aumento de 1 ponto percentual no distanciamento social reduz, em média, 356,66 mortes por milhão de habitantes com um p-valor estatísticamente significativo. No entanto, os resultados do teste de Sargan indicam que os instrumentos utilizados não são completamente exógenos pois o p-valor é muito baixo.
 
 ```{r chk7, echo=TRUE, message=TRUE, warning=TRUE, paged.print=TRUE}
-modelo_2sls <- ivreg(covid_fatality_pm ~ social_distancing | campaign + lockdown , data = gileade)
+first_stage <- lm(social_distancing ~ campaign + lockdown, data = gileade)
+summary(first_stage)
 
+modelo_2sls <- ivreg(covid_fatality_pm ~ social_distancing | campaign + lockdown , data = gileade)
 summary(modelo_2sls)
+
+residuos <- residuals(modelo_2sls)
+sargan_test <- lm(residuos ~ campaign + lockdown, data = gileade)
+
+sargan_stat <- summary(sargan_test)$r.squared * nrow(gileade)
+
+p_value <- 1 - pchisq(sargan_stat, df = 2 - 1) # df = (número de instrumentos - variáveis instrumentadas)
+
+cat("Estatística do Teste de Sargan:", sargan_stat, "\n")
+cat("P-valor:", p_value, "\n")
 ```
+
+
+2.c. O teste de Sargan indicom existe um problema de endogeneidade, isso significa que pelo menos um dos instrumentos (ou ambos) está correlacionado com o erro, tornando-os inválidos. O viés dependerá da correlação entre os instrumentos e o erro do modelo, se os instrumentos estiverem positivamente correlacionados com a variável omitida (como pobreza), o coeficiente de social_distancing pode estar subestimado. Se os instrumentos estiverem negativamente correlacionados com a variável omitida, o coeficiente pode estar superestimado.
+
+
+2.d. Assumindo que tivéssemos os dados de pobreza dos municípios, manteríamos as variáveis Campaingn e Lockdown que influenciam o distanciamento social e adicionaríamos um indicador de pobreza do município nos dois estágios, pois pobreza pode ajudar a explicar tanto o distanciamento social quanto a taxa de mortalidade.
+
+  [Pobreza]    ->    [Covid Fatality PM]
+      v                     ^
+  [Social Distancing] -> [Covid Fatality PM]
+      ^ 
+  [Campaign/Lockdown]
+
+#3.
+
+
+```{r chk8, echo=TRUE, message=TRUE, warning=TRUE, paged.print=TRUE}
+voucher <- read_dta("~/mestrado/infcausal/Lista_3/Training_voucher.dta")
+```
+
+
+
+
 
 
 
