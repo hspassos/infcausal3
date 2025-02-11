@@ -23,6 +23,8 @@ library(haven)
 library(texreg)
 library(plm)
 library (AER)
+library(rdrobust)
+library(rddensity)
 ```
 
 # 1. Programa de distribuição de material
@@ -128,10 +130,53 @@ voucher <- read_dta("~/mestrado/infcausal/Lista_3/Training_voucher.dta")
 ```
 
 
+3.a. Usar um modelo RDD seria mais adequado pois 
 
 
+3.b. O gráfico mostra um salto na probabilidade das pessoas elegíveis ao voucher participarem do treinamento em relação às pessoas não elegíveis.
+
+```{r chk9, echo=TRUE, message=TRUE, warning=TRUE, paged.print=TRUE}
+rdplot(voucher$Training_program, voucher$poverty_index, c = 50)
+```
 
 
+3.c. O gráfico mostra que pessoas que tinham um poverty_index>50 tiveram, em média, um aumento de renda maior e esse aumento foi mais significativo quanto mais perto o índice estiver de 50.
+
+```{r chk10, echo=TRUE, message=TRUE, warning=TRUE, paged.print=TRUE}
+voucher$income_diff <- voucher$labor_income - voucher$labor_income_pre
+rdplot(voucher$income_diff, voucher$poverty_index, c = 50)
+```
+
+
+3.d. O coeficiente indica que há um aumento médio de R$ 1.142,20 na variação da renda para aqueles que estão logo acima do threshold de pobreza em comparação com aqueles logo abaixo. A estatística z tem valor elevado e o p-valor é baixo indicando que o tratamento tem um impacto significativo na renda. Os valores do teste robusto seguem a mesma tendência, reforçando a validade da estimativa.
+
+```{r chk11, echo=TRUE, message=TRUE, warning=TRUE, paged.print=TRUE}
+rdd_result <- rdrobust(voucher$income_diff, voucher$poverty_index, c = 50)
+print(summary(rdd_result))
+```
+
+
+3.e. Analisando as regressões descontínuas com polinômios de 1 a 5, os testes mostram que a estatística z mais alta é para o polinômio de primeira ordem o que indica que o efeito é mais significativo nesse caso.
+
+```{r chk11, echo=TRUE, message=TRUE, warning=TRUE, paged.print=TRUE}
+rdplot(voucher$income_diff, voucher$poverty_index, p=1, c = 50)
+rdplot(voucher$income_diff, voucher$poverty_index, p=2, c = 50)
+rdplot(voucher$income_diff, voucher$poverty_index, p=3, c = 50)
+rdplot(voucher$income_diff, voucher$poverty_index, p=4, c = 50)
+rdplot(voucher$income_diff, voucher$poverty_index, p=5, c = 50)
+
+print(summary(rdrobust(voucher$income_diff, voucher$poverty_index, p=1, c = 50)))
+print(summary(rdrobust(voucher$income_diff, voucher$poverty_index, p=2, c = 50)))
+print(summary(rdrobust(voucher$income_diff, voucher$poverty_index, p=3, c = 50)))
+print(summary(rdrobust(voucher$income_diff, voucher$poverty_index, p=4, c = 50)))
+print(summary(rdrobust(voucher$income_diff, voucher$poverty_index, p=5, c = 50)))
+```
+
+3.f. 
+
+```{r chk12, echo=TRUE, message=TRUE, warning=TRUE}
+
+```
 
 
 
