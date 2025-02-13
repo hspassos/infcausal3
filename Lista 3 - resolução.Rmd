@@ -160,7 +160,7 @@ print(summary(rdd_result))
 
 3.e. Analisando as regressões descontínuas com polinômios de 1 a 5, os testes mostram que a estatística z mais alta é para o polinômio de primeira ordem o que indica que o efeito é mais significativo nesse caso.
 
-```{r chk11, echo=TRUE, message=TRUE, warning=TRUE, paged.print=TRUE}
+```{r chk12, echo=TRUE, message=TRUE, warning=TRUE, paged.print=TRUE}
 rdplot(voucher$income_diff, voucher$poverty_index, p=1, c = 50)
 rdplot(voucher$income_diff, voucher$poverty_index, p=2, c = 50)
 rdplot(voucher$income_diff, voucher$poverty_index, p=3, c = 50)
@@ -174,22 +174,9 @@ print(summary(rdrobust(voucher$income_diff, voucher$poverty_index, p=4, c = 50))
 print(summary(rdrobust(voucher$income_diff, voucher$poverty_index, p=5, c = 50)))
 ```
 
-3.f. 
-
-```{r chk12, echo=TRUE, message=TRUE, warning=TRUE}
-
-```
-
-
-
-
-
-
-
-
 #4.
 
-```{r chk, echo=TRUE, message=TRUE, warning=TRUE}
+```{r chk13, echo=TRUE, message=TRUE, warning=TRUE}
 jtrain <- read_dta("~/mestrado/infcausal/Lista_3/jtrain3.dta")
 lista3ex4 <- read.csv(paste("~/mestrado/infcausal/Lista_3/lista3ex4itc.csv", sep=""),header=TRUE, sep=",", dec=".")
 ```
@@ -197,7 +184,7 @@ lista3ex4 <- read.csv(paste("~/mestrado/infcausal/Lista_3/lista3ex4itc.csv", sep
 
 4.a. Os resultados sugerem que o treinamento tem um retorno positivo no rendimento dos trabalhadores, no entanto, os p-valores do coeficiente de treinamento são altos para todos os quantis, o que sugere que o treinamento não tem impacto significativo nas rendas.
 
-```{r chk, echo=TRUE, message=TRUE, warning=TRUE}
+```{r chk14, echo=TRUE, message=TRUE, warning=TRUE}
 reg_re78 <- rq(re78 ~ train + re75 + educ + age, tau = c(0.1, 0.25, 0.5, 0.75, 0.9), data = jtrain, na.action = na.exclude , method="br")
 res_re78 <- summary(reg_re78, se="boot")
 print(res_re78)
@@ -205,13 +192,13 @@ print(res_re78)
 
 4.b. Supondo que os p-valores fossem significativos, até o quantil 0.5, o coeficiente de treinamento é negativo, o que sugere que os trabalhadores perdem renda quando fazem o treinamento, isso de ter relação com características não observáveis realcionadas seleção de quem recebe o tratamento. Após o quantil 0.5 o coeficiente passa a ser positivi indicando o efeito esperado na renda.
 
-```{r chk, echo=TRUE, message=TRUE, warning=TRUE}
+```{r chk15, echo=TRUE, message=TRUE, warning=TRUE}
 plot(res_re78, mfrow = c(1,2))
 ```
 
 4.c. Nesse caso, o efeito do tratamento é positivo para todos os quantis, no entanto, o p-valor do coeficiente é estatisticamente significativo a partir do quantil 0.5. O efeito é crescente em relação aos quantis, pessoas de renda mais alta tem maior crescimento na renda quando fazem o treinamento.
 
-```{r chk, echo=TRUE, message=TRUE, warning=TRUE}
+```{r chk16, echo=TRUE, message=TRUE, warning=TRUE}
 df0 <- subset(lista3ex4, treat_itemC == 0)
 df1 <- subset(lista3ex4, treat_itemC == 1)
 
